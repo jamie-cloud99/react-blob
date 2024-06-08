@@ -1,0 +1,47 @@
+:root {
+  --cr-main-1: #2ac9ae;
+  --cr-main-2: #f087f4;
+  --cr-1: color-mix(in srgb, var(--cr-main-1), var(--cr-main) 20%);
+  --cr-2: color-mix(in srgb, var(--cr-main-1), var(--cr-main) 35%);
+  --cr-3: color-mix(in srgb, var(--cr-main-1), var(--cr-main) 50%);
+  --cr-4: color-mix(in srgb, var(--cr-main-1), var(--cr-main) 65%);
+  --cr-5: color-mix(in srgb, var(--cr-main-1), var(--cr-main) 80%);
+}
+
+.blobs {
+  @apply pointer-events-none fixed left-0 top-0 -z-[1] h-full w-full blur-[140px];
+}
+
+.blob {
+  @apply absolute aspect-square rounded-full top-0 left-0;
+  width: max(240px, 20vw);
+}
+
+
+.blob:nth-of-type(1) {
+  background: var(--cr-main-1);
+}
+
+.blob:nth-of-type(2) {
+  background: var(--cr-main-2);
+}
+
+.blob:nth-of-type(3) {
+  background: whitesmoke;
+}
+
+.blob:nth-of-type(4) {
+  background: var(--cr-1);
+}
+
+.blob:nth-of-type(5) {
+  background: var(--cr-3);
+}
+
+.blob:nth-of-type(6) {
+  background: var(--cr-4);
+}
+
+.blob:nth-of-type(7) {
+  background: var(--cr-2)
+}
