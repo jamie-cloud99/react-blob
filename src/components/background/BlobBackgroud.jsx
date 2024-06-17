@@ -1,82 +1,93 @@
 import { getRandomNumber } from "@/utils";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import styles from "@/styles/BlobBackground.module.css";
 
 export function Blobs() {
-  const blobRefs = useRef([]);
+  const [blobs, setBlobs] = useState([]);
 
   useEffect(() => {
     const MIN_SPEED = 0.5;
     const MAX_SPEED = 2;
+    const BLOB_SIZE = 180;
 
-    class Blob {
-      constructor(el) {
-        this.el = el;
-        const boundingRect = this.el.getBoundingClientRect();
-        this.size = boundingRect.width;
-        this.initialX = getRandomNumber(0, window.innerWidth - this.size);
-        this.initialY = getRandomNumber(0, window.innerHeight - this.size);
-        this.el.style.top = `${this.initialY}px`;
-        this.el.style.left = `${this.initialX}px`;
-        this.vx =
-          getRandomNumber(MIN_SPEED, MAX_SPEED) *
-          (Math.random() > 0.5 ? 1 : -1);
-        this.vy =
-          getRandomNumber(MIN_SPEED, MAX_SPEED) *
-          (Math.random() > 0.5 ? 1 : -1);
-        this.x = this.initialX;
-        this.y = this.initialY;
+    const initializeBlob = (index) => {
+      const initialX = getRandomNumber(0, window.innerWidth - BLOB_SIZE);
+      const initialY = getRandomNumber(0, window.innerHeight - BLOB_SIZE);
+
+      const vx =
+        getRandomNumber(MIN_SPEED, MAX_SPEED) * (Math.random() > 0.5 ? 1 : -1);
+      const vy =
+        getRandomNumber(MIN_SPEED, MAX_SPEED) * (Math.random() > 0.5 ? 1 : -1);
+
+      return {
+        size: BLOB_SIZE,
+        initialX,
+        initialY,
+        x: initialX,
+        y: initialY,
+        vx,
+        vy,
+        index,
+      };
+    };
+
+    const updateBlob = (blob) => {
+      let { x, y, vx, vy, size } = blob;
+
+      x += vx;
+      y += vy;
+
+      if (x >= window.innerWidth - size) {
+        x = window.innerWidth - size;
+        vx *= -1;
       }
 
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-
-        if (this.x >= window.innerWidth - this.size) {
-          this.x = window.innerWidth - this.size;
-          this.vx *= -1;
-        }
-
-        if (this.y >= window.innerHeight - this.size) {
-          this.y = window.innerHeight - this.size;
-          this.vy *= -1;
-        }
-
-        if (this.x <= 0) {
-          this.x = 0;
-          this.vx *= -1;
-        }
-
-        if (this.y <= 0) {
-          this.y = 0;
-          this.vy *= -1;
-        }
-
-        this.el.style.transform = `translate(${this.x - this.initialX}px, ${this.y - this.initialY}px)`;
-      }
-    }
-
-    function initBlobs() {
-      const blobs = blobRefs.current.map((blobEl) => new Blob(blobEl));
-
-      function update() {
-        requestAnimationFrame(update);
-        blobs.forEach((blob) => blob.update());
+      if (x <= 0) {
+        x = 0;
+        vx *= -1;
       }
 
+      if (y >= window.innerHeight - size) {
+        y = window.innerHeight - size;
+        vy *= -1;
+      }
+
+      if (y <= 0) {
+        y = 0;
+        vy *= -1;
+      }
+
+      return { ...blob, x, y, vx, vy };
+    };
+
+    const initBlobs = () => {
+      const blobData = Array.from({ length: 7 }, (_, index) =>
+        initializeBlob(index),
+      );
+      setBlobs(blobData);
+    };
+
+    const update = () => {
       requestAnimationFrame(update);
-    }
+      setBlobs((preBlobs) => preBlobs.map(updateBlob));
+    };
 
     initBlobs();
+    update();
   }, []);
 
   return (
     <div className={styles.blobs}>
-      {Array.from({ length: 7 }).map((_, index) => (
+      {blobs.map((blob) => (
         <div
-          key={index}
-          ref={(el) => (blobRefs.current[index] = el)}
+          key={blob.index}
           className={styles.blob}
+          style={{
+            width: `${blob.size}px`,
+            height: `${blob.size}px`,
+            top: `${blob.y}px`,
+            left: `${blob.x}px`,
+          }}
         />
       ))}
     </div>
